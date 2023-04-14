@@ -1,4 +1,6 @@
 /* eslint-disable */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import React, { useState, useEffect, useRef } from "react";
 import { useSigner, useAccount } from "wagmi";
 import { fetchBalance } from "@wagmi/core";

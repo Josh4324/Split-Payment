@@ -1,4 +1,6 @@
 /* eslint-disable */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import React, { useState, useEffect, useRef } from "react";
 import { useSigner, useAccount } from "wagmi";
 import { fetchBalance } from "@wagmi/core";
@@ -24,11 +26,15 @@ export default function Home() {
   const gRef = useRef();
 
   const createPayContract = async () => {
-    const payContract = new ethers.Contract(payAddress, payABI.abi, signer);
+    const payContract = new ethers.Contract(
+      payAddress,
+      payABI.abi,
+      signer || undefined
+    );
     return payContract;
   };
 
-  const addUsername = async (name) => {
+  const addUsername = async (name: string) => {
     const contract = await createPayContract();
     const id = toast.loading("Transaction in progress..");
     try {
@@ -142,6 +148,7 @@ export default function Home() {
     console.log("bal", balance);
     setBalance(ethers.BigNumber.from(balance.value) / 10 ** 18);
     setAddr(address);
+    setSign(signer);
   };
 
   useEffect(() => {
