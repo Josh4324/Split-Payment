@@ -1,5 +1,5 @@
 import pay from "../abi/pay.json";
 
-export const payAddress = "0xaAF90b2862edc007D417450E3562A8DB90121E69";
+export const payAddress = "0x2a84c10cD87FC4F3d192437b9058eA8e2f38b2C8";
 
 export const payABI = pay.abi;

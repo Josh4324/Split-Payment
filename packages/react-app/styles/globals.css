@@ -87,6 +87,9 @@ tr:nth-child(odd) {
   max-height: 400px;
 }
 
+.my2 {
+  max-height: 300px;
+}
 .sbut {
   background-color: #38c1f5;
   height: 50px;
@@ -98,4 +101,26 @@ tr:nth-child(odd) {
   display: block;
   margin-top: 100px;
   border-radius: 10px;
+}
+
+.wid {
+  width: 50%;
+  padding-top: 100px;
+}
+
+.box {
+  padding-top: 100px;
+}
+
+.but {
+  background-color: #38c1f5;
+  width: 30%;
+  border-radius: 5px;
+}
+
+.butf {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
 }

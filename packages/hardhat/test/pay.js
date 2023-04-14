@@ -15,7 +15,7 @@ describe("Greeter", function () {
       "Food",
       [user1.address, user2.address, user3.address],
       [
-        ethers.utils.parseEther("0.05"),
+        ethers.utils.parseEther("10"),
         ethers.utils.parseEther("20"),
         ethers.utils.parseEther("70"),
       ],
@@ -29,7 +29,7 @@ describe("Greeter", function () {
 
     console.log(await pay.fetchMySplits());
 
-    console.log(await pay.connect(user3).getRequests());
+    console.log("req", await pay.getRequests(user3.address));
 
     await pay.setUsername("Josh");
     await pay.setUsername("Josh1");
@@ -48,6 +48,8 @@ describe("Greeter", function () {
     console.log(
       await pay.getUsername("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
     );
+
+    console.log(await pay.getSplitData(0));
 
     //console.log(await pay.fetchMyGroup());
     //console.log(await pay.fetchNameGroup("group1"));

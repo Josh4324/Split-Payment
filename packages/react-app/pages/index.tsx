@@ -8,10 +8,15 @@ import { ethers } from "ethers";
 import payABI from "../abi/pay.json";
 import { payAddress } from "../utils/constant";
 import { toast } from "react-toastify";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function Home() {
+  const router = useRouter();
   const frRef = useRef();
+  const groupRef = useRef();
+  const usrRef = useRef();
   const { address } = useAccount();
   const [fr, setFr] = useState([1]);
   const [user, setUser] = useState("None");
@@ -40,9 +45,35 @@ export default function Home() {
     try {
       const tx = await contract.setUsername(name);
       await tx.wait();
-      const usr = await contract.getAddress(addUsername);
+      const usr = await contract.getUsername(addr);
       console.log(usr);
       setUser(usr);
+      usrRef.current.reset();
+      toast.update(id, {
+        render: "Transaction successfull",
+        type: "success",
+        isLoading: false,
+        autoClose: 1000,
+        closeButton: true,
+      });
+    } catch (error) {
+      console.log(error);
+      toast.update(id, {
+        render: `${error.reason}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 1000,
+        closeButton: true,
+      });
+    }
+  };
+
+  const acceptOrReject = async (status, sid) => {
+    const contract = await createPayContract();
+    const id = toast.loading("Transaction in progress..");
+    try {
+      const tx = await contract.acceptOrRejectSplit(status, sid);
+      await tx.wait();
       toast.update(id, {
         render: "Transaction successfull",
         type: "success",
@@ -69,7 +100,7 @@ export default function Home() {
       const tx = await contract.createGroup(group, name);
       await tx.wait();
       const gr = await contract.fetchMyGroup();
-      console.log(gr);
+      groupRef.current.reset();
       setGroup(gr);
       toast.update(id, {
         render: "Transaction successfull",
@@ -114,9 +145,19 @@ export default function Home() {
   const getRequests = async () => {
     const contract = await createPayContract();
     try {
-      const splits = await contract.getRequests();
+      const splits = await contract.getRequests(addr);
       console.log(splits);
       setRequest(splits);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getUsername = async () => {
+    const contract = await createPayContract();
+    try {
+      const usr = await contract.getUsername(addr);
+      setUser(usr);
     } catch (error) {
       console.log(error);
     }
@@ -148,7 +189,6 @@ export default function Home() {
     console.log("bal", balance);
     setBalance(ethers.BigNumber.from(balance.value) / 10 ** 18);
     setAddr(address);
-    setSign(signer);
   };
 
   useEffect(() => {
@@ -156,6 +196,7 @@ export default function Home() {
     getGroup();
     getSplit();
     getRequests();
+    getUsername();
   }, [addr, user, signer]);
 
   return (
@@ -182,8 +223,9 @@ export default function Home() {
           </div>
         </div>
         <div className="split-flex3">
-          <div class="w-full mx-auto mt-20 max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+          <div class="w-full mx-auto my2 mt-20 max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
             <form
+              ref={usrRef}
               onSubmit={(evt) => {
                 evt.preventDefault();
                 addUsername(userRef.current.value);
@@ -214,7 +256,7 @@ export default function Home() {
             </form>
           </div>
           <div class="w-full mx-auto mt-20 max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
-            <form class="space-y-6" action="#">
+            <form ref={groupRef} class="space-y-6" action="#">
               <h5 class="text-xl font-medium text-gray-900 dark:text-white">
                 Create Group
               </h5>
@@ -284,11 +326,37 @@ export default function Home() {
                         <div className="flex-shrink-0"></div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                            Neil Sims
+                            {item.creator.slice(0, 5)}...i
+                            {item.creator.slice(-3, -1)} wants you to accept
+                            payment
                           </p>
                           <p className="text-sm text-gray-500 truncate dark:text-gray-400">
                             email@windster.com
                           </p>
+                          <div className="butf">
+                            <button
+                              onClick={() =>
+                                acceptOrReject(
+                                  true,
+                                  ethers.BigNumber.from(item.splitId)
+                                )
+                              }
+                              className="but"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() =>
+                                acceptOrReject(
+                                  false,
+                                  ethers.BigNumber.from(item.splitId)
+                                )
+                              }
+                              className="but"
+                            >
+                              Reject
+                            </button>
+                          </div>
                         </div>
                         <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
                           {ethers.BigNumber.from(item.amount) / 10 ** 18} celo
@@ -370,7 +438,12 @@ export default function Home() {
               {spList.map((item, index) => {
                 return (
                   <tr
-                    key={index}
+                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                      router.push(
+                        `/detail/${ethers.BigNumber.from(item.splitId)}`
+                      )
+                    }
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                   >
                     <th

@@ -126,6 +126,7 @@ contract Pay {
             uint _amount = SplitStats[splitId][msg.sender].amount;
             require(_amount >= msg.value, "Split Friends must be at least two");
             SplitStats[splitId][msg.sender].request = PaymentStatus.accepted;
+             SplitStats[splitId][msg.sender].status = "paid";
 
             address _to = SplitData[splitId].recipient;
             SplitData[splitId].amountReceivedByRecipient =
@@ -137,6 +138,7 @@ contract Pay {
                 SplitData[splitId].amount
             ) {
                 SplitData[splitId].status = "completed";
+
             }
 
             (bool success, ) = _to.call{value: msg.value}("");
@@ -171,14 +173,14 @@ contract Pay {
         return items;
     }
 
-    function getRequests() public view returns (SplitStat[] memory) {
+    function getRequests(address addr) public view returns (SplitStat[] memory) {
         uint256 currentIndex = 0;
         uint256 itemCount = 0;
 
         for (uint256 i = 0; i < counter; i++) {
             if (
-                SplitStats[i][msg.sender].owner == msg.sender &&
-                SplitStats[i][msg.sender].request == PaymentStatus.pending
+                SplitStats[i][addr].owner == addr &&
+                SplitStats[i][addr].request == PaymentStatus.pending
             ) {
                 itemCount += 1;
             }
@@ -188,13 +190,13 @@ contract Pay {
 
         for (uint256 i = 0; i < counter; i++) {
             if (
-                SplitStats[i][msg.sender].owner == msg.sender &&
-                SplitStats[i][msg.sender].request == PaymentStatus.pending
+                SplitStats[i][addr].owner == addr &&
+                SplitStats[i][addr].request == PaymentStatus.pending
             ) {
                 uint256 currentId = i;
 
                 SplitStat storage currentItem = SplitStats[currentId][
-                    msg.sender
+                    addr
                 ];
                 items[currentIndex] = currentItem;
 
@@ -283,4 +285,11 @@ contract Pay {
     ) public view returns (address[] memory) {
         return SplitGroup[name];
     }
+
+     function getSplitData(
+        uint num
+    ) public view returns (Split memory) {
+        return SplitData[num];
+    }
+
 }
