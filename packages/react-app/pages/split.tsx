@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect, useRef } from "react";
 import { useSigner, useAccount } from "wagmi";
 import { fetchBalance } from "@wagmi/core";
@@ -52,7 +53,6 @@ export default function Split() {
       );
       await tx.wait();
       const splits = await contract.fetchMySplits();
-      console.log(splits);
       setSpList(splits);
       toast.update(id, {
         render: "Transaction successfull",

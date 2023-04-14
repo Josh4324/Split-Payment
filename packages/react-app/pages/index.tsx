@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect, useRef } from "react";
 import { useSigner, useAccount } from "wagmi";
 import { fetchBalance } from "@wagmi/core";
@@ -148,7 +149,7 @@ export default function Home() {
     getGroup();
     getSplit();
     getRequests();
-  }, [addr, user]);
+  }, [addr, user, signer]);
 
   return (
     <div>
